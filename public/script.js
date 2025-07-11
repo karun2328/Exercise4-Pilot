@@ -1,3 +1,6 @@
+let token = null;
+let polling = null;
+
 function setToken(name) {
     const a = navigator.userAgent;
     let browser = "Unknown";
@@ -29,7 +32,7 @@ async function getToken() {
         const response = await fetch("/token");
         if (!response.ok) throw new Error("fetch failed");
         const token = await response.json();
-        console.log("Token received from server:", token);
+        // console.log("Token received from server:", token);
         return token;
     } catch (error) {
         console.error("Error fetching token:", error);
@@ -37,20 +40,21 @@ async function getToken() {
     }
 }
 
-async function resetPage() {
-    console.log("Hi");
+async function resetPage(servetToken) {
     const input = document.getElementById("nameInput");
     const btn = document.getElementById("pingbtn");
     const msg = document.getElementById("msg");
     btn.disabled = false;
-    msg.innerHTML = "Click to ping!";
+    msg.innerHTML = `Your were pinged by ${servetToken.user} (${servetToken.browser}).
+     Click to ping!`;
     document.getElementById("userInfo").textContent = " ";
+    input.classList.remove("hidden");
 }
 
 async function testToken() {
     const input = document.getElementById("nameInput");
     const name = input.value || "Anonymous";
-    const token = setToken(name);
+    token = setToken(name);
     const btn = document.getElementById("pingbtn");
     const msg = document.getElementById("msg");
     await putToken(token);
@@ -64,11 +68,26 @@ async function testToken() {
         btn.disabled = true;
         msg.innerHTML = "Waiting to get pinged back...";
         input.classList.add("hidden");
+        polling = setInterval(turnTracker, 1000);
     } else {
         document.getElementById("userInfo").textContent = "Failed";
     }
 
     input.value = "";
+}
+
+async function turnTracker() {
+    const serverToken = await getToken();
+    let reset = false;
+    console.log("Polling");
+    if (
+        serverToken &&
+        (token.browser !== serverToken.browser ||
+            token.user !== serverToken.user)
+    ) {
+        resetPage(serverToken);
+        clearInterval(polling);
+    }
 }
 
 document.getElementById("pingbtn").addEventListener("click", testToken);
@@ -80,4 +99,3 @@ document
             testToken();
         }
     });
-document.getElementById("test").addEventListener("click", resetPage);
