@@ -37,6 +37,16 @@ async function getToken() {
     }
 }
 
+async function resetPage() {
+    console.log("Hi");
+    const input = document.getElementById("nameInput");
+    const btn = document.getElementById("pingbtn");
+    const msg = document.getElementById("msg");
+    btn.disabled = false;
+    msg.innerHTML = "Click to ping!";
+    document.getElementById("userInfo").textContent = " ";
+}
+
 async function testToken() {
     const input = document.getElementById("nameInput");
     const name = input.value || "Anonymous";
@@ -53,7 +63,7 @@ async function testToken() {
         console.log("Full round-trip token:", received);
         btn.disabled = true;
         msg.innerHTML = "Waiting to get pinged back...";
-        input.classList.add("hidden")
+        input.classList.add("hidden");
     } else {
         document.getElementById("userInfo").textContent = "Failed";
     }
@@ -62,9 +72,12 @@ async function testToken() {
 }
 
 document.getElementById("pingbtn").addEventListener("click", testToken);
-document.getElementById("nameInput").addEventListener("keypress", function(event){
-    if(event.key === "Enter" ){
-        event.preventDefault();
-        testToken();
-    }
-});
+document
+    .getElementById("nameInput")
+    .addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            testToken();
+        }
+    });
+document.getElementById("test").addEventListener("click", resetPage);
