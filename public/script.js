@@ -13,10 +13,10 @@ function setToken(name) {
 
 async function putToken(token) {
     try {
-        await fetch('/token', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(token)
+        await fetch("/token", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(token),
         });
         console.log("Token sent to server:", token);
     } catch (error) {
@@ -26,8 +26,8 @@ async function putToken(token) {
 
 async function getToken() {
     try {
-        const response = await fetch('/token');
-        if (!response.ok) throw new Error('fetch failed');
+        const response = await fetch("/token");
+        if (!response.ok) throw new Error("fetch failed");
         const token = await response.json();
         console.log("Token received from server:", token);
         return token;
@@ -41,13 +41,19 @@ async function testToken() {
     const input = document.getElementById("nameInput");
     const name = input.value || "Anonymous";
     const token = setToken(name);
-
+    const btn = document.getElementById("pingbtn");
+    const msg = document.getElementById("msg");
     await putToken(token);
     const received = await getToken();
 
     if (received) {
-        document.getElementById("userInfo").textContent = `${received.user} (${received.browser})`;
+        document.getElementById(
+            "userInfo"
+        ).textContent = `${received.user} (${received.browser})`;
         console.log("Full round-trip token:", received);
+        btn.disabled = true;
+        msg.innerHTML = "Waiting to get pinged back...";
+        input.classList.add("hidden")
     } else {
         document.getElementById("userInfo").textContent = "Failed";
     }
@@ -56,3 +62,9 @@ async function testToken() {
 }
 
 document.getElementById("pingbtn").addEventListener("click", testToken);
+document.getElementById("nameInput").addEventListener("keypress", function(event){
+    if(event.key === "Enter" ){
+        event.preventDefault();
+        testToken();
+    }
+});
