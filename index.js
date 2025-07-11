@@ -27,16 +27,29 @@ app.post('/token',(req,res)=>{
 });
 
 app.get('/token', (req, res) => {
+  if(!fs.existsSync(tokenFile)){
+    console.log("No token found")
+    return res.json({user: null, browser: null})
+  }
+
   fs.readFile(tokenFile, (err, data) => {
     if (err) {
       console.error("Failed to read token:", err);
-      res.status(500).send('Error reading token');
-    } else {
+      return res.status(500).send('Error reading token');
+    } 
+    try{
+
       res.json(JSON.parse(data));
+    }catch(parseErr){
+      console.error("Invalid JSON");
+      return res.status(500).send('Invalid Token');
+
+
     }
+    
   });
 });
 
-app.listen(port, () => {
+app.listen(port,'0.0.0.0', () => {
   console.log(`Example app listening on port ${port}`)
 })

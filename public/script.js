@@ -1,4 +1,4 @@
-let token = null;
+let token = {browser: null, user: null};
 let polling = null;
 
 function setToken(name) {
@@ -45,7 +45,7 @@ async function resetPage(servetToken) {
     const btn = document.getElementById("pingbtn");
     const msg = document.getElementById("msg");
     btn.disabled = false;
-    msg.innerHTML = `Your were pinged by ${servetToken.user} (${servetToken.browser}).
+    msg.innerHTML = `Last ping received from ${servetToken.user} (${servetToken.browser}).
      Click to ping!`;
     document.getElementById("userInfo").textContent = " ";
     input.classList.remove("hidden");
@@ -58,6 +58,7 @@ async function testToken() {
     const btn = document.getElementById("pingbtn");
     const msg = document.getElementById("msg");
     await putToken(token);
+    await new Promise(res => setTimeout(res, 100))
     const received = await getToken();
 
     if (received) {
@@ -68,7 +69,7 @@ async function testToken() {
         btn.disabled = true;
         msg.innerHTML = "Waiting to get pinged back...";
         input.classList.add("hidden");
-        polling = setInterval(turnTracker, 1000);
+
     } else {
         document.getElementById("userInfo").textContent = "Failed";
     }
@@ -86,7 +87,7 @@ async function turnTracker() {
             token.user !== serverToken.user)
     ) {
         resetPage(serverToken);
-        clearInterval(polling);
+        // clearInterval(polling);
     }
 }
 
@@ -99,3 +100,5 @@ document
             testToken();
         }
     });
+
+polling = setInterval(turnTracker, 1000);
